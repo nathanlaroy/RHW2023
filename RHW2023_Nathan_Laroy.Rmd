@@ -41,3 +41,12 @@ col_rank_order_indices <- sort(colSums(HairEye), index.return = T)$ix
    max( HairEye[, "Blue"][ HairEye[, "Blue"] != max( HairEye[, "Blue"] ) ])
    ))
 ```
+
+## Question 5
+```{r }
+library(reshape2)
+library(knitr)
+
+HairEye_longform <- melt(HairEye, id = c("Hair", "Eye"))
+kable(HairEye_longform, format = "html")
+```
