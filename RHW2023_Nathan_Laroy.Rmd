@@ -1,0 +1,43 @@
+---
+title: "RHW2023_Nathan_Laroy"
+author: "Nathan Laroy"
+date: "2023-10-20"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+## Question 1
+```{r}
+(HairEye <- apply(HairEyeColor, c(1, 2), sum))
+(ClassSurvived <- apply(Titanic, c(1,4), sum))
+```
+
+## Question 2
+```{r}
+# rows order
+row_rank_order_indices <- sort(rowSums(HairEye), index.return = T)$ix
+
+# cols order
+col_rank_order_indices <- sort(colSums(HairEye), index.return = T)$ix
+
+# re-ordered matrix
+(HairEye_ordered <- HairEye[c(row_rank_order_indices), c(col_rank_order_indices)])
+```
+
+## Question 3
+```{r }
+(replace(HairEye, list = c(1:16), rank(HairEye)))
+```
+
+## Question 4
+```{r }
+(c( max( HairEye["Brown", ] ), 
+   max( HairEye["Blond", ] ), 
+   max( HairEye[, "Blue"][ HairEye[, "Blue"] != max( HairEye[, "Blue"] ) ])
+   ))
+```
