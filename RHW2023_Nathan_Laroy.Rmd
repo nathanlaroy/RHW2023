@@ -37,7 +37,7 @@ col_rank_order_indices <- sort(colSums(HairEye), index.return = T)$ix
 ## Question 4
 ```{r }
 (c( max( HairEye["Brown", ] ), 
-   max( HairEye["Blond", ] ), 
-   max( HairEye[, "Blue"][ HairEye[, "Blue"] != max( HairEye[, "Blue"] ) ])
-   ))
+    max( HairEye["Blond", ] ), 
+    max( HairEye[, "Blue"][ HairEye[, "Blue"] != max( HairEye[, "Blue"] ) ])
+    ))
 ```
