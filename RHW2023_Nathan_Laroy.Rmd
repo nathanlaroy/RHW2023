@@ -98,23 +98,23 @@ all2x2
 ```{r include = F}
 library(microbenchmark)
 
-matrix_of_sums <- function(x){
-  dim_pos <- which(HairEye == x, arr.ind = T)
+matrix_of_sums <- function(x, data){
+  dim_pos <- which(data == x, arr.ind = T)
   
   row <- dim_pos[1]
   col <- dim_pos[2]
   
-  value <- HairEye[row, col]
-  row_sum <- sum(HairEye[row, ][HairEye[row, ] != HairEye[row, col]])
-  col_sum <- sum(HairEye[, col][HairEye[, col] != HairEye[row, col]])
-  rest_sum <- sum(HairEye[-row, -col])
+  value <- data[row, col]
+  row_sum <- sum(data[row, ][data[row, ] != data[row, col]])
+  col_sum <- sum(data[, col][data[, col] != data[row, col]])
+  rest_sum <- sum(data[-row, -col])
   
   (new_matrix <- matrix(c(value, col_sum, row_sum, rest_sum),
                          nrow = 2,
                          ncol = 2))
 }
 
-matrix_list <- lapply(HairEye, matrix_of_sums)
+matrix_list <- lapply(HairEye, matrix_of_sums, data = HairEye)
 
 # compare running times
 forloop_times <- microbenchmark({
@@ -139,7 +139,7 @@ forloop_times <- microbenchmark({
                 }, unit = "microseconds")
 forloop_mean <- summary(forloop_times)["mean"]
 
-lapply_times <- microbenchmark({lapply(HairEye, matrix_of_sums)}, unit = "microseconds")
+lapply_times <- microbenchmark({lapply(HairEye, matrix_of_sums, data = HairEye)}, unit = "microseconds")
 lapply_mean <- summary(lapply_times)["mean"]
 ```
 The average time of the first computation is `r summary(forloop_times)[["mean"]]` microseconds and the average time of the second computation is `r summary(lapply_times)[["mean"]]` microseconds.
@@ -149,18 +149,71 @@ The average time of the first computation is `r summary(forloop_times)[["mean"]]
 calcOR <- function(x){
   (OR <- (x[1, 1] * x[2, 2])/(x[2,1] * x[1, 2]))
 }
+
 GlobalOddsRatio <- function(x){
   if (!is.matrix(x)){
     stop("is.matrix(x) is not TRUE")
   } else {
+    matrix_list <- lapply(x, matrix_of_sums, data = x)
+    odds_ratios <- lapply(matrix_list, calcOR)
     
-    
-    matrix_list <- lapply(HairEye, matrix_of_sums)
-    
-    (odds_ratios <- lapply(matrix_list, calcOR))
+    (replace(x, list = c(1:length(x)), unlist(odds_ratios)))
   }
 }
 
 ORs <- GlobalOddsRatio(HairEye)
-(replace(HairEye, list = c(1:16), unlist(ORs)))
+```
+
+## Question 9
+
+```{r }
+LogOddsRatio <- function(x, base = exp(1), adjust = 0.5){
+  
+    if (!is.matrix(x)){
+    stop("is.matrix(x) is not TRUE")
+  } else {
+    # Formal args put through from LogOddsRatio()
+    adjust_var <- adjust
+    base_var <- base
+    
+    # New function calclogOR() like calcOR() from previous Q
+    # Inherits formal args as stated above
+    calclogOR <- function(x, base = base_var, adjust = adjust_var){
+      x[which(x == 0)] <- 0 + adjust
+      OR <- (x[1, 1] * x[2, 2])/(x[2,1] * x[1, 2])
+      logOR <- log(OR, base = base)
+    }
+    
+    # Calculate matrix of sums
+    matrix_list <- lapply(x, matrix_of_sums, data = x)
+    
+    # output log ORs of matrices in matrix_list
+    log_odds_ratios <- lapply(matrix_list, calclogOR)
+    (replace(x, list = c(1:length(x)), unlist(log_odds_ratios)))
+  }
+}
+
+logORs <- LogOddsRatio(HairEye)
+```
+
+## Question 10
+```{r }
+CreateTwoWay <- function(x){
+  class(x) <- "TwoWay" ; x
+}
+
+GOR.TwoWay <- GlobalOddsRatio
+LOR.TwoWay <- LogOddsRatio
+
+GOR <- function(x, ...){
+  UseMethod("GOR")
+}
+LOR <- function(x, ...){
+  UseMethod("LOR")
+}
+
+Titanic2Way <- CreateTwoWay(ClassSurvived)
+class(Titanic2Way)
+GOR(Titanic2Way)
+LOR(Titanic2Way)
 ```
