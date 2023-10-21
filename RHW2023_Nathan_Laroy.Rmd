@@ -18,13 +18,13 @@ knitr::knit_hooks$set(inline = function(x) {
 ## R Markdown
 
 ## Question 1
-```{r include = F}
+```{r results = "hide"}
 (HairEye <- apply(HairEyeColor, c(1, 2), sum))
-(ClassSurvived <- apply(Titanic, c(1,4), sum))
+(ClassSurvived <- apply(Titanic, c(1, 4), sum))
 ```
 
 ## Question 2
-```{r include = F}
+```{r results = "hide"}
 # rows order
 row_rank_order_indices <- sort(rowSums(HairEye), index.return = T)$ix
 
@@ -36,12 +36,12 @@ col_rank_order_indices <- sort(colSums(HairEye), index.return = T)$ix
 ```
 
 ## Question 3
-```{r include = F}
+```{r results = "hide"}
 (replace(HairEye, list = c(1:16), rank(HairEye)))
 ```
 
 ## Question 4
-```{r include = F}
+```{r results = "hide"}
 (c( max( HairEye["Brown", ] ),
     max( HairEye["Blond", ] ), 
     max( HairEye[, "Blue"][ HairEye[, "Blue"] != max( HairEye[, "Blue"] ) ])
@@ -51,11 +51,13 @@ col_rank_order_indices <- sort(colSums(HairEye), index.return = T)$ix
 ## Question 5
 ```{r }
 # patched package 'kableExtra' required from devtools::install_github("kupietz/kableExtra")
-#> In my R installation, rmarkdown produces error with regular "kableExtra" package when knitting.
-#> However, kableExtra is needed to reproduce 'prettified' table as shown in question 5.
+#> In my R installation, rmarkdown produces error with regular "kableExtra" package when knitting, 
+#> specifically for kable_classic() function.
+#> This function extends kable() for "prettier" output, i.e. to obtain the one shown in assignment 5.
 #> 
 #> Code below tries to use kableExtra (if installed) (maybe it produces no error on other installations),
-#> and prints regular kable() output when kable_classic() yields error.
+#> and prints regular kable() output when kable_classic() yields error, or when "kableExtra"
+#> is not installed.
 
 library(reshape2)
 try(library(kableExtra), silent = T)
@@ -73,7 +75,7 @@ if (output == "try-error"){
 ```
 
 ## Question 6
-```{r include = F}
+```{r results = "hide"}
 all2x2 <- vector(mode = "list", length = length(HairEye))
 list_position <- 1
 for (i in 1:dim(HairEye)[1]){
@@ -95,10 +97,16 @@ all2x2
 ```
 
 ## Question 7
-```{r include = F}
+```{r results = "hide"}
 library(microbenchmark)
 
+# Matrices with sums obtained via novel function and lapply()
+#> 'x' is individual value from HairEye-like object, as needed for lapply();
+#> 'data' is complete matrix, allows any HairEye- or ClassSurvived-like
+#>        matrix object to be fed as needed for Q10;
+
 matrix_of_sums <- function(x, data){
+  
   dim_pos <- which(data == x, arr.ind = T)
   
   row <- dim_pos[1]
@@ -115,6 +123,7 @@ matrix_of_sums <- function(x, data){
 }
 
 matrix_list <- lapply(HairEye, matrix_of_sums, data = HairEye)
+
 
 # compare running times
 forloop_times <- microbenchmark({
@@ -145,7 +154,7 @@ lapply_mean <- summary(lapply_times)["mean"]
 The average time of the first computation is `r summary(forloop_times)[["mean"]]` microseconds and the average time of the second computation is `r summary(lapply_times)[["mean"]]` microseconds.
 
 ## Question 8
-```{r }
+```{r results = "hide"}
 calcOR <- function(x){
   (OR <- (x[1, 1] * x[2, 2])/(x[2,1] * x[1, 2]))
 }
@@ -166,7 +175,7 @@ ORs <- GlobalOddsRatio(HairEye)
 
 ## Question 9
 
-```{r }
+```{r results = "hide"}
 LogOddsRatio <- function(x, base = exp(1), adjust = 0.5){
   
     if (!is.matrix(x)){
@@ -197,7 +206,7 @@ logORs <- LogOddsRatio(HairEye)
 ```
 
 ## Question 10
-```{r }
+```{r results = "hide"}
 CreateTwoWay <- function(x){
   class(x) <- "TwoWay" ; x
 }
@@ -211,9 +220,17 @@ GOR <- function(x, ...){
 LOR <- function(x, ...){
   UseMethod("LOR")
 }
+```
 
+```{r }
 Titanic2Way <- CreateTwoWay(ClassSurvived)
 class(Titanic2Way)
+```
+
+```{r }
 GOR(Titanic2Way)
+```
+
+```{r }
 LOR(Titanic2Way)
 ```
