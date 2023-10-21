@@ -227,10 +227,18 @@ Titanic2Way <- CreateTwoWay(ClassSurvived)
 class(Titanic2Way)
 ```
 
-```{r }
+```{r eval = F}
 GOR(Titanic2Way)
 ```
+```{r echo = F}
+# Without [,] at end, output includes class attribute on separate line
+GOR(Titanic2Way)[,]
+```
 
-```{r }
+```{r eval = F}
 LOR(Titanic2Way)
+```
+```{r echo = F}
+# Without [,] at end, output includes class attribute on separate line
+LOR(Titanic2Way)[,]
 ```
