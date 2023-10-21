@@ -2,23 +2,29 @@
 title: "RHW2023_Nathan_Laroy"
 author: "Nathan Laroy"
 date: "2023-10-20"
-output: html_document
+output:
+  html_document: default
+  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = T)
+knitr::knit_hooks$set(inline = function(x) {
+  x <- sprintf("%1.2f", x)
+  paste(x, collapse = ", ")
+  })
 ```
 
 ## R Markdown
 
 ## Question 1
-```{r}
+```{r include = F}
 (HairEye <- apply(HairEyeColor, c(1, 2), sum))
 (ClassSurvived <- apply(Titanic, c(1,4), sum))
 ```
 
 ## Question 2
-```{r}
+```{r include = F}
 # rows order
 row_rank_order_indices <- sort(rowSums(HairEye), index.return = T)$ix
 
@@ -30,12 +36,12 @@ col_rank_order_indices <- sort(colSums(HairEye), index.return = T)$ix
 ```
 
 ## Question 3
-```{r }
+```{r include = F}
 (replace(HairEye, list = c(1:16), rank(HairEye)))
 ```
 
 ## Question 4
-```{r }
+```{r include = F}
 (c( max( HairEye["Brown", ] ),
     max( HairEye["Blond", ] ), 
     max( HairEye[, "Blue"][ HairEye[, "Blue"] != max( HairEye[, "Blue"] ) ])
@@ -44,10 +50,117 @@ col_rank_order_indices <- sort(colSums(HairEye), index.return = T)$ix
 
 ## Question 5
 ```{r }
+# patched package 'kableExtra' required from devtools::install_github("kupietz/kableExtra")
+#> In my R installation, rmarkdown produces error with regular "kableExtra" package when knitting.
+#> However, kableExtra is needed to reproduce 'prettified' table as shown in question 5.
+#> 
+#> Code below tries to use kableExtra (if installed) (maybe it produces no error on other installations),
+#> and prints regular kable() output when kable_classic() yields error.
+
 library(reshape2)
-library(knitr)
+try(library(kableExtra), silent = T)
 
 HairEye_longform <- melt(HairEye, id = c("Hair", "Eye"))
-kable(HairEye_longform, format = "html")
+kable_object <- kable(HairEye_longform, col.names = c("Hair", "Eye", "Freq"), format = "html")
+output <- try(kable_classic(kable_object, full_width = F), silent = T)
+
+if (output == "try-error"){
+  kable_object
+} else {
+  output
+}
+
 ```
 
+## Question 6
+```{r include = F}
+all2x2 <- vector(mode = "list", length = length(HairEye))
+list_position <- 1
+for (i in 1:dim(HairEye)[1]){
+  for (j in 1:dim(HairEye)[2]){
+    value <- HairEye[i, j]
+    row_sum <- sum(HairEye[i, ][HairEye[i, ] != HairEye[i, j]])
+    col_sum <- sum(HairEye[, j][HairEye[, j] != HairEye[i, j]])
+    rest_sum <- sum(HairEye[-i, -j])
+    
+    new_matrix <- matrix(c(value, col_sum, row_sum, rest_sum),
+                         nrow = 2,
+                         ncol = 2)
+    
+    all2x2[[list_position]] <- new_matrix
+    list_position <- list_position + 1
+  }
+}
+all2x2
+```
+
+## Question 7
+```{r include = F}
+library(microbenchmark)
+
+matrix_of_sums <- function(x){
+  dim_pos <- which(HairEye == x, arr.ind = T)
+  
+  row <- dim_pos[1]
+  col <- dim_pos[2]
+  
+  value <- HairEye[row, col]
+  row_sum <- sum(HairEye[row, ][HairEye[row, ] != HairEye[row, col]])
+  col_sum <- sum(HairEye[, col][HairEye[, col] != HairEye[row, col]])
+  rest_sum <- sum(HairEye[-row, -col])
+  
+  (new_matrix <- matrix(c(value, col_sum, row_sum, rest_sum),
+                         nrow = 2,
+                         ncol = 2))
+}
+
+matrix_list <- lapply(HairEye, matrix_of_sums)
+
+# compare running times
+forloop_times <- microbenchmark({
+          all2x2 <- vector(mode = "list", length = length(HairEye))
+          list_position <- 1
+          for (i in 1:dim(HairEye)[1]){
+            for (j in 1:dim(HairEye)[2]){
+              value <- HairEye[i, j]
+              row_sum <- sum(HairEye[i, ][HairEye[i, ] != HairEye[i, j]])
+              col_sum <- sum(HairEye[, j][HairEye[, j] != HairEye[i, j]])
+              rest_sum <- sum(HairEye[-i, -j])
+              
+              new_matrix <- matrix(c(value, col_sum, row_sum, rest_sum),
+                                   nrow = 2,
+                                   ncol = 2)
+              
+              all2x2[[list_position]] <- new_matrix
+              list_position <- list_position + 1
+            }
+          }
+          all2x2
+                }, unit = "microseconds")
+forloop_mean <- summary(forloop_times)["mean"]
+
+lapply_times <- microbenchmark({lapply(HairEye, matrix_of_sums)}, unit = "microseconds")
+lapply_mean <- summary(lapply_times)["mean"]
+```
+The average time of the first computation is `r summary(forloop_times)[["mean"]]` microseconds and the average time of the second computation is `r summary(lapply_times)[["mean"]]` microseconds.
+
+## Question 8
+```{r }
+calcOR <- function(x){
+  (OR <- (x[1, 1] * x[2, 2])/(x[2,1] * x[1, 2]))
+}
+GlobalOddsRatio <- function(x){
+  if (!is.matrix(x)){
+    stop("is.matrix(x) is not TRUE")
+  } else {
+    
+    
+    matrix_list <- lapply(HairEye, matrix_of_sums)
+    
+    (odds_ratios <- lapply(matrix_list, calcOR))
+  }
+}
+
+ORs <- GlobalOddsRatio(HairEye)
+(replace(HairEye, list = c(1:16), unlist(ORs)))
+```
