@@ -175,7 +175,7 @@ ORs <- GlobalOddsRatio(HairEye)
 ```{r results = "hide"}
 LogOddsRatio <- function(x, base = exp(1), adjust = 0.5){
   
-    if (!is.matrix(x)){
+  if (!is.matrix(x)){
     stop("is.matrix(x) is not TRUE")
   } else {
     # Formal args put through from LogOddsRatio()

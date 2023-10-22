@@ -1396,18 +1396,8 @@ display: none;
 </div>
 <div id="question-2" class="section level2">
 <h2>Question 2</h2>
-<pre class="r"><code># rows order
-# &gt; row_rank_order_indices &lt;- sort(rowSums(HairEye), index.return = T, decreasing = T)$ix
-
-# cols order
-# &gt; col_rank_order_indices &lt;- sort(colSums(HairEye), index.return = T, decreasing = T)$ix
-
-# re-ordered matrix
-# &gt; (HairEye_ordered &lt;- HairEye[c(row_rank_order_indices), c(col_rank_order_indices)])
-
-# all in one
-(HairEye_ordered &lt;- HairEye[c( sort(rowSums(HairEye), index.return = T, decreasing = T)$ix ),
-                            c( sort(colSums(HairEye), index.return = T, decreasing = T)$ix )
+<pre class="r"><code>(HairEye_ordered &lt;- HairEye[order(-rowSums(HairEye)),
+                            order(-colSums(HairEye))
                             ])</code></pre>
 </div>
 <div id="question-3" class="section level2">
@@ -1418,7 +1408,7 @@ display: none;
 <h2>Question 4</h2>
 <pre class="r"><code>(c( max( HairEye[&quot;Brown&quot;, ] ),
     max( HairEye[&quot;Blond&quot;, ] ), 
-    max( HairEye[, &quot;Blue&quot;][ HairEye[, &quot;Blue&quot;] != max( HairEye[, &quot;Blue&quot;] ) ])
+    max( HairEye[, &quot;Blue&quot;][HairEye[, &quot;Blue&quot;] != max(HairEye[, &quot;Blue&quot;])] )
     ))</code></pre>
 </div>
 <div id="question-5" class="section level2">
@@ -1426,16 +1416,19 @@ display: none;
 <pre class="r"><code># patched package &#39;kableExtra&#39; required from devtools::install_github(&quot;kupietz/kableExtra&quot;)
 #&gt; In my R installation, rmarkdown produces error with regular &quot;kableExtra&quot; package when knitting, 
 #&gt; specifically for kable_classic() function.
-#&gt; This function extends kable() for &quot;prettier&quot; output, i.e. to obtain the one shown in assignment 5.
+#&gt; This function extends kable() for &quot;prettier&quot; html output, i.e. to obtain the one shown in assignment 5.
 #&gt; 
 #&gt; Code below tries to use kableExtra (if installed) (maybe it produces no error on other installations),
 #&gt; and prints regular kable() output when kable_classic() yields error, or when &quot;kableExtra&quot;
 #&gt; is not installed.
 
-library(reshape2)
 try(library(kableExtra), silent = T)
 
-HairEye_longform &lt;- melt(HairEye, id = c(&quot;Hair&quot;, &quot;Eye&quot;))
+HairEye_longform &lt;- data.frame(Hair = expand.grid( dimnames(HairEye) )[,1], 
+                               Eye = expand.grid( dimnames(HairEye) )[,2],
+                               value = as.vector(HairEye)
+                               )
+
 kable_object &lt;- kable(HairEye_longform, col.names = c(&quot;Hair&quot;, &quot;Eye&quot;, &quot;Freq&quot;), format = &quot;html&quot;)
 output &lt;- try(kable_classic(kable_object, full_width = F), silent = T)
 
@@ -1713,8 +1706,8 @@ forloop_mean &lt;- summary(forloop_times)[&quot;mean&quot;]
 
 lapply_times &lt;- microbenchmark({lapply(HairEye, matrix_of_sums, data = HairEye)}, unit = &quot;microseconds&quot;)
 lapply_mean &lt;- summary(lapply_times)[&quot;mean&quot;]</code></pre>
-<p>The average time of the first computation is 10679.88 microseconds
-and the average time of the second computation is 349.08
+<p>The average time of the first computation is 10228.07 microseconds
+and the average time of the second computation is 359.47
 microseconds.</p>
 </div>
 <div id="question-8" class="section level2">
@@ -1740,7 +1733,7 @@ ORs &lt;- GlobalOddsRatio(HairEye)</code></pre>
 <h2>Question 9</h2>
 <pre class="r"><code>LogOddsRatio &lt;- function(x, base = exp(1), adjust = 0.5){
   
-    if (!is.matrix(x)){
+  if (!is.matrix(x)){
     stop(&quot;is.matrix(x) is not TRUE&quot;)
   } else {
     # Formal args put through from LogOddsRatio()
