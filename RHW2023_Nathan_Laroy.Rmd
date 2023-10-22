@@ -26,13 +26,18 @@ knitr::knit_hooks$set(inline = function(x) {
 ## Question 2
 ```{r results = "hide"}
 # rows order
-row_rank_order_indices <- sort(rowSums(HairEye), index.return = T)$ix
+# > row_rank_order_indices <- sort(rowSums(HairEye), index.return = T, decreasing = T)$ix
 
 # cols order
-col_rank_order_indices <- sort(colSums(HairEye), index.return = T)$ix
+# > col_rank_order_indices <- sort(colSums(HairEye), index.return = T, decreasing = T)$ix
 
 # re-ordered matrix
-(HairEye_ordered <- HairEye[c(row_rank_order_indices), c(col_rank_order_indices)])
+# > (HairEye_ordered <- HairEye[c(row_rank_order_indices), c(col_rank_order_indices)])
+
+# all in one
+(HairEye_ordered <- HairEye[c( sort(rowSums(HairEye), index.return = T, decreasing = T)$ix ),
+                            c( sort(colSums(HairEye), index.return = T, decreasing = T)$ix )
+                            ])
 ```
 
 ## Question 3

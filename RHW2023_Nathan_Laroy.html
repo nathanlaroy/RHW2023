@@ -1397,13 +1397,18 @@ display: none;
 <div id="question-2" class="section level2">
 <h2>Question 2</h2>
 <pre class="r"><code># rows order
-row_rank_order_indices &lt;- sort(rowSums(HairEye), index.return = T)$ix
+# &gt; row_rank_order_indices &lt;- sort(rowSums(HairEye), index.return = T, decreasing = T)$ix
 
 # cols order
-col_rank_order_indices &lt;- sort(colSums(HairEye), index.return = T)$ix
+# &gt; col_rank_order_indices &lt;- sort(colSums(HairEye), index.return = T, decreasing = T)$ix
 
 # re-ordered matrix
-(HairEye_ordered &lt;- HairEye[c(row_rank_order_indices), c(col_rank_order_indices)])</code></pre>
+# &gt; (HairEye_ordered &lt;- HairEye[c(row_rank_order_indices), c(col_rank_order_indices)])
+
+# all in one
+(HairEye_ordered &lt;- HairEye[c( sort(rowSums(HairEye), index.return = T, decreasing = T)$ix ),
+                            c( sort(colSums(HairEye), index.return = T, decreasing = T)$ix )
+                            ])</code></pre>
 </div>
 <div id="question-3" class="section level2">
 <h2>Question 3</h2>
@@ -1708,8 +1713,8 @@ forloop_mean &lt;- summary(forloop_times)[&quot;mean&quot;]
 
 lapply_times &lt;- microbenchmark({lapply(HairEye, matrix_of_sums, data = HairEye)}, unit = &quot;microseconds&quot;)
 lapply_mean &lt;- summary(lapply_times)[&quot;mean&quot;]</code></pre>
-<p>The average time of the first computation is 10482.15 microseconds
-and the average time of the second computation is 357.42
+<p>The average time of the first computation is 10679.88 microseconds
+and the average time of the second computation is 349.08
 microseconds.</p>
 </div>
 <div id="question-8" class="section level2">
