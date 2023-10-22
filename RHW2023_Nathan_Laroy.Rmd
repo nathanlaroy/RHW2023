@@ -39,7 +39,7 @@ knitr::knit_hooks$set(inline = function(x) {
 ```{r results = "hide"}
 (c( max( HairEye["Brown", ] ),
     max( HairEye["Blond", ] ), 
-    max( HairEye[, "Blue"][ HairEye[, "Blue"] != max( HairEye[, "Blue"] ) ])
+    max( HairEye[, "Blue"][HairEye[, "Blue"] != max(HairEye[, "Blue"])] )
     ))
 ```
 
