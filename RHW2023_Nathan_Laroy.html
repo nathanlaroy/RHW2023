@@ -1413,12 +1413,12 @@ display: none;
 </div>
 <div id="question-5" class="section level2">
 <h2>Question 5</h2>
-<pre class="r"><code># patched package &#39;kableExtra&#39; required from devtools::install_github(&quot;kupietz/kableExtra&quot;)
-#&gt; In my R installation, rmarkdown produces error with regular &quot;kableExtra&quot; package when knitting, 
+<pre class="r"><code># Patched package &#39;kableExtra&#39; required from devtools::install_github(&quot;kupietz/kableExtra&quot;) (see https://github.com/haozhu233/kableExtra/issues/750 for problem definition).
+#&gt; Since 3.4 R installation, rmarkdown produces error with regular &quot;kableExtra&quot; package when knitting, 
 #&gt; specifically for kable_classic() function.
-#&gt; This function extends kable() for &quot;prettier&quot; html output, i.e. to obtain the one shown in assignment 5.
+#&gt; This function extends kable() for &quot;prettier&quot; html output, i.e. to obtain something akin to the example output from assignment 5.
 #&gt; 
-#&gt; Code below tries to use kableExtra (if installed) (maybe it produces no error on other installations),
+#&gt; Code below tries to use kableExtra (if installed),
 #&gt; and prints regular kable() output when kable_classic() yields error, or when &quot;kableExtra&quot;
 #&gt; is not installed.
 
@@ -1432,7 +1432,7 @@ HairEye_longform &lt;- data.frame(Hair = expand.grid( dimnames(HairEye) )[,1],
 kable_object &lt;- kable(HairEye_longform, col.names = c(&quot;Hair&quot;, &quot;Eye&quot;, &quot;Freq&quot;), format = &quot;html&quot;)
 output &lt;- try(kable_classic(kable_object, full_width = F), silent = T)
 
-if (output == &quot;try-error&quot;){
+if (&quot;try-error&quot; %in% class(output)){
   kable_object
 } else {
   output
@@ -1649,8 +1649,7 @@ for (i in 1:dim(HairEye)[1]){
     all2x2[[list_position]] &lt;- new_matrix
     list_position &lt;- list_position + 1
   }
-}
-all2x2</code></pre>
+}</code></pre>
 </div>
 <div id="question-7" class="section level2">
 <h2>Question 7</h2>
@@ -1704,10 +1703,12 @@ forloop_times &lt;- microbenchmark({
                 }, unit = &quot;microseconds&quot;)
 forloop_mean &lt;- summary(forloop_times)[&quot;mean&quot;]
 
-lapply_times &lt;- microbenchmark({lapply(HairEye, matrix_of_sums, data = HairEye)}, unit = &quot;microseconds&quot;)
+lapply_times &lt;- microbenchmark({lapply(HairEye, matrix_of_sums, 
+                                       data = HairEye)},
+                               unit = &quot;microseconds&quot;)
 lapply_mean &lt;- summary(lapply_times)[&quot;mean&quot;]</code></pre>
-<p>The average time of the first computation is 10228.07 microseconds
-and the average time of the second computation is 359.47
+<p>The average time of the first computation is 10494.80 microseconds
+and the average time of the second computation is 361.68
 microseconds.</p>
 </div>
 <div id="question-8" class="section level2">

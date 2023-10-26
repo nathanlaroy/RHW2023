@@ -45,12 +45,12 @@ knitr::knit_hooks$set(inline = function(x) {
 
 ## Question 5
 ```{r }
-# patched package 'kableExtra' required from devtools::install_github("kupietz/kableExtra")
-#> In my R installation, rmarkdown produces error with regular "kableExtra" package when knitting, 
+# Patched package 'kableExtra' required from devtools::install_github("kupietz/kableExtra") (see https://github.com/haozhu233/kableExtra/issues/750 for problem definition).
+#> Since 3.4 R installation, rmarkdown produces error with regular "kableExtra" package when knitting, 
 #> specifically for kable_classic() function.
-#> This function extends kable() for "prettier" html output, i.e. to obtain the one shown in assignment 5.
+#> This function extends kable() for "prettier" html output, i.e. to obtain something akin to the example output from assignment 5.
 #> 
-#> Code below tries to use kableExtra (if installed) (maybe it produces no error on other installations),
+#> Code below tries to use kableExtra (if installed),
 #> and prints regular kable() output when kable_classic() yields error, or when "kableExtra"
 #> is not installed.
 
@@ -64,7 +64,7 @@ HairEye_longform <- data.frame(Hair = expand.grid( dimnames(HairEye) )[,1],
 kable_object <- kable(HairEye_longform, col.names = c("Hair", "Eye", "Freq"), format = "html")
 output <- try(kable_classic(kable_object, full_width = F), silent = T)
 
-if (output == "try-error"){
+if ("try-error" %in% class(output)){
   kable_object
 } else {
   output
@@ -90,7 +90,6 @@ for (i in 1:dim(HairEye)[1]){
     list_position <- list_position + 1
   }
 }
-all2x2
 ```
 
 ## Question 7
@@ -145,7 +144,9 @@ forloop_times <- microbenchmark({
                 }, unit = "microseconds")
 forloop_mean <- summary(forloop_times)["mean"]
 
-lapply_times <- microbenchmark({lapply(HairEye, matrix_of_sums, data = HairEye)}, unit = "microseconds")
+lapply_times <- microbenchmark({lapply(HairEye, matrix_of_sums, 
+                                       data = HairEye)},
+                               unit = "microseconds")
 lapply_mean <- summary(lapply_times)["mean"]
 ```
 The average time of the first computation is `r summary(forloop_times)[["mean"]]` microseconds and the average time of the second computation is `r summary(lapply_times)[["mean"]]` microseconds.
